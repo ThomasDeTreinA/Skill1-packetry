@@ -1,0 +1,110 @@
+--- UITLEG NETWERK SIMULATOR LEVELS V3 (INCLUSIEF POPUP TEKSTEN) ---
+
+In deze gids vind je de volledige technische specificaties van elk level, inclusief de exacte teksten van de educatieve popups.
+
+=========================================
+LEVEL 1: DE BASIS, BOTSINGEN & GLASVEZEL
+=========================================
+
+DOEL: 
+Het begrijpen van fysieke netwerken, het verschil tussen 'domme' en 'slimme' apparatuur, en het overwinnen van afstandslimieten met glasvezel.
+
+POPUP TEKSTEN IN DIT LEVEL:
+
+[BASIS APPARATUUR] (Bij start)
+"PC: Je vaste werkplek. Heeft een kabel nodig.
+LAPTOP: Flexibel werkstation. Kan kabel of Wi-Fi gebruiken.
+HUB: Een verdeeldoos. Stuurt data naar iedereen (dom).
+SWITCH: Een slimme Hub. Stuurt data alleen naar de juiste poort.
+ROUTER: De poort naar de rest van de wereld (WAN/Internet).
+CONVERTER: Zet glasvezel (Fiber) om naar koper (RJ45)."
+
+[HUB COLLISION] (Wanneer data botst)
+"COLLISION: De Hub is te 'dom'!
+Een Hub begrijpt niet wie de ontvanger is. Hij stuurt alle binnenkomende data naar IEDEREEN tegelijk. Als twee PC's tegelijk praten, botsen de elektrische signalen in de Hub. De data raakt beschadigd en gaat verloren. Dit noemen we een 'Collision'."
+
+[DE SLIMME SWITCH] (Bij de overstap naar Switch)
+"DE SWITCH: Het 'slimme' apparaat.
+Een Switch is veel slimmer dan een Hub. Hij onthoudt welk apparaat op welke poort zit. Als PC 1 data stuurt naar PC 2, stuurt de Switch dit ALLEEN naar PC 2. Andere poorten blijven vrij. Hierdoor kunnen meerdere PC's tegelijk communiceren zonder dat er botsingen ontstaan. Veel efficiënter!"
+
+[FIBER CHAIN] (Uitleg over converters)
+"HOE VERBIND JE GLASVEZEL?
+Je hebt altijd TWEE Media Converters nodig om een gat te overbruggen. De volgorde is als volgt:
+1. [Switch] --(Cat 5)--> [Converter 1]
+2. [Converter 1] --(Fiber)--> [Converter 2]
+3. [Converter 2] --(Cat 5)--> [Verre PC]
+Onthoud: Koper (Cat 5) gaat in de RJ45 poort, Fiber in de optische poort. Een converter heeft beide! Je bouwt dus een 'brug' van licht."
+
+[FIBER CONNECTIE FOUT] (Bij foutieve aansluiting)
+"Wacht even! Je probeert glasvezel in een koperpoort te steken. Glasvezel werkt met licht en heeft een speciale Media Converter nodig om de LC/SC-connector om te zetten naar een RJ45 poort. Gebruik de Converter uit het menu. Steek daar de Fiber in, en trek dan een koperkabel (Cat 5) naar de PC of Hub."
+
+IP-ADRESSEN:
+- In Level 1 worden nog geen IP-adressen gebruikt; dit level focust op de fysieke laag (Layer 1).
+
+=========================================
+LEVEL 2: IP-ADRESSEN & DE GATEWAY (INTERNET)
+=========================================
+
+DOEL: 
+Het configureren van een lokaal netwerk (LAN) en dit via een Router verbinden met het internet (WAN).
+
+POPUP TEKSTEN IN DIT LEVEL:
+
+[WAAROM EEN IP-ADRES?] (Als data niet aankomt)
+"WAAROM IS EEN IP-ADRES BELANGRIJK?
+Zoals je zag, kwam het pakketje NIET aan bij de nieuwe PC. Zonder IP-adres is een apparaat onzichtbaar op het netwerk. Vergelijk het met een huis zonder huisnummer: De postbode (het pakketje) weet wel waar de straat is, maar kan de brief niet afleveren omdat het adres ontbreekt!"
+
+[ISP CONFIGURATIE] (Router instellingen)
+"UITLEG: Level 2 ISP: Telenet Thuisnetwerk
+De service provider is vergeten jouw router in te stellen dus moeten wij het doen. Vul de volgende gegevens in bij de ISP instellingen:
+- Public IP: 84.197.10.15
+- Subnet Mask: 255.255.255.0
+- Default Gateway: 84.197.10.1
+- Primary DNS: 8.8.8.8
+- Secondary DNS: 8.8.4.4"
+
+[GATEWAY & DNS] (Uitleg van termen)
+"DEFAULT GATEWAY: Dit is het adres van de 'voordeur' van jouw netwerk. Als een apparaat data wil sturen naar het internet, stuurt het alles eerst naar de Gateway (jouw router). 
+DNS (Domain Name System): Vertaalt domeinnamen (zoals www.google.com) naar IP-adressen. Zonder DNS moet je elk IP-adres uit je hoofd kennen!"
+
+IP-CONFIGURATIE (LOKAAL):
+- Router: 192.168.1.1 | Subnet: 255.255.255.0
+- PC 1: 192.168.1.2 | Subnet: 255.255.255.0 | Gateway: 192.168.1.1 | DNS: 8.8.8.8
+- PC 2: 192.168.1.3 | Subnet: 255.255.255.0 | Gateway: 192.168.1.1 | DNS: 8.8.8.8
+- PC 3: 192.168.1.4 | Subnet: 255.255.255.0 | Gateway: 192.168.1.1 | DNS: 8.8.8.8
+
+=========================================
+LEVEL 3: CROSSOVER KABELS & DHCP
+=========================================
+
+DOEL: 
+Een complexer netwerk bouwen tussen twee locaties en automatisering introduceren via DHCP.
+
+POPUP TEKSTEN IN DIT LEVEL:
+
+[STRAIGHT VS CROSSOVER] (Bij kabel fout)
+"FOUT: Je probeert twee routers te verbinden met een Straight kabel!
+1. Straight-through: Draden aan beide kanten in DEZELFDE volgorde. GEBRUIK: Verschillende apparaten (PC naar Switch, Router naar Switch).
+2. Crossover: Verzend- en ontvangstlijnen (TX/RX) aan één kant omgedraaid. GEBRUIK: Zelfde apparaten (Router naar Router, Switch naar Switch)."
+
+[DHCP CONCEPT] (Uitleg automatisering)
+"NIEUW CONCEPT: DHCP
+Handmatig IP-adressen invullen voor honderden PC's is veel werk. DHCP (Dynamic Host Configuration Protocol) lost dit op! Een Router met DHCP-server deelt automatisch IP's uit aan apparaten. In deze missie hoef je alleen DHCP 'AAN' te zetten op de PC's."
+
+[ISP HUIS 1] (Thomas More Campus)
+- Public IP: 193.191.1.20
+- Subnet Mask: 255.255.255.0
+- Default Gateway: 193.191.1.1
+- DNS: 8.8.8.8 / 8.8.4.4
+
+=========================================
+LEVEL 4: WI-FI & HET GROTE OVERZICHT
+=========================================
+
+POPUP TEKSTEN:
+
+[WI-FI FREQUENTIES] (Uitleg 2.4 vs 5GHz)
+"2.4GHz is de 'vrachtwagen': Hij komt overal doorheen en gaat ver, maar is niet zo snel.
+5GHz is de 'sportwagen': Hij is supersnel, maar heeft moeite met muren en verliest snel zijn bereik."
+
+--- EINDE DOCUMENT ---

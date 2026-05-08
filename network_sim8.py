@@ -974,8 +974,10 @@ class MissionSystem:
                 Mission("Huis 2: Plaats een PC, Switch en de eerste Router.", "L3_H2_START"),
                 Mission("Verbind: Router 1 -> Switch -> PC (Straight).", "L3_H2_CONNECT_P1"),
                 Mission("Plaats een tweede Router en verbind deze met Router 1 (Crossover).", "L3_H2_R2"),
-                Mission("Configureer IPs: R1(192.168.2.1), R2(192.168.3.1), PC(192.168.2.2) met allemaal subnet 255.255.255.0,.", "L3_H2_IPS"),
-                Mission("Plaats een Laptop bij Router 2 en verbind via het WiFi menu (SSID: TM_intern, wachtwoord: iloveITF).", "L3_H2_LAP"),
+                Mission("Configureer de LAN IPs van de Routers: R1 (192.168.2.1) en R2 (192.168.3.1) met subnet 255.255.255.0.", "L3_H2_IPS"),
+                Mission("Zet de DHCP Server 'AAN' in de instellingen van Router 1.", "L3_ENABLE_DHCP_SRV"),
+                Mission("Zet de PC op DHCP in zijn IP-instellingen.", "L3_USE_DHCP"),
+                Mission("Plaats een Laptop bij Router 1 en verbind via het WiFi menu (SSID: TM_intern, wachtwoord: iloveITF).", "L3_H2_LAP"),
                 Mission("Lees de uitleg over Wi-Fi frequenties.", "EXPLANATION_WIFI"),
                 Mission("Stuur een pakketje (SPATIE) van de PC naar de Laptop door beide routers!", "L3_H2_FINAL"),
                 Mission("Huis 2 voltooid! Terug naar de Wereldkaart...", "L3_TO_WORLD_2"),
@@ -1000,6 +1002,8 @@ class MissionSystem:
         self.current_idx += 1
         self.overlay_alpha = 0
         self.wifi_timer = 0 # Reset timer on every mission advance to avoid sticky text
+        self.packets_sent = 0
+        self.packets_delivered = 0
 
     def draw_mission_text(self, surface, devices, isp_inputs=None):
         mission = self.get_current()
@@ -1566,7 +1570,7 @@ class MissionSystem:
                 "DE SWITCH: Het 'slimme' apparaat",
                 "",
                 "Een Switch is veel slimmer dan een Hub.",
-                "He onthoudt welk apparaat op welke poort zit.",
+                "Het onthoudt welk apparaat op welke poort zit.",
                 "",
                 "Als PC 1 data stuurt naar PC 2, stuurt de Switch dit",
                 "ALLEEN naar PC 2. Andere poorten blijven vrij.",
@@ -1959,12 +1963,11 @@ class MissionSystem:
                         return
 
         elif mission.type == "L3_H2_IPS":
-            # R1(192.168.2.1), R2(192.168.3.1), PC(192.168.2.2)
+            # R1(192.168.2.1), R2(192.168.3.1)
             r1 = next((d for d in devices if d.type == 'Router' and d.name_idx == 1), None)
             r2 = next((d for d in devices if d.type == 'Router' and d.name_idx == 2), None)
-            pc = next((d for d in devices if d.type == 'PC'), None)
-            if r1 and r2 and pc:
-                if r1.ip == "192.168.2.1" and r2.ip == "192.168.3.1" and pc.ip == "192.168.2.2":
+            if r1 and r2:
+                if r1.ip == "192.168.2.1" and r2.ip == "192.168.3.1":
                     self.advance()
                     return
                     
@@ -2256,6 +2259,8 @@ def main():
                     if not is_dhcp_on:
                         ip_input.handle_event(event)
                         subnet_input.handle_event(event)
+                        gw_input.handle_event(event)
+                        dns_input.handle_event(event)
                 elif active_device and active_window == "ISP":
                     isp_ip_input.handle_event(event)
                     isp_subnet_input.handle_event(event)
@@ -2707,18 +2712,16 @@ def main():
                                 if not getattr(active_device, 'dhcp', False):
                                     ip_input.handle_event(event)
                                     subnet_input.handle_event(event)
-                                    if mission_sys.level >= 2:
-                                        gw_input.handle_event(event)
-                                        dns_input.handle_event(event)
+                                    gw_input.handle_event(event)
+                                    dns_input.handle_event(event)
                                         
                                     save_y = HEIGHT//2 + 180 if mission_sys.level >= 2 else HEIGHT//2 + 130
                                     btn_save = pygame.Rect(WIDTH//2 - 50, save_y, 100, 30)
                                     if btn_save.collidepoint(event.pos):
                                         active_device.ip = ip_input.text
                                         active_device.subnet = subnet_input.text
-                                        if mission_sys.level >= 2:
-                                            active_device.gateway = gw_input.text
-                                            active_device.dns = dns_input.text
+                                        active_device.gateway = gw_input.text
+                                        active_device.dns = dns_input.text
                                         
                                         m = mission_sys.get_current()
                                         if m and m.type == "CONF_PC":
@@ -2807,7 +2810,7 @@ def main():
                         
                         elif active_window == "WIFI_LIST":
                             nets = ["Free_WiFi_Station", "Telenet-ABCD", "TM_intern"]
-                            ny = HEIGHT//2 - 150 + 90
+                            ny = HEIGHT//2 - 225 + 90
                             for net in nets:
                                 btn_net = pygame.Rect(WIDTH//2 - 250 + 50, ny, 300, 40)
                                 if btn_net.collidepoint(event.pos):
@@ -2822,7 +2825,7 @@ def main():
                         
                         elif active_window == "WIFI_PWD":
                             wifi_pwd_input.handle_event(event)
-                            btn_conn = pygame.Rect(WIDTH//2 - 250 + 50, HEIGHT//2 - 150 + 150, 120, 40)
+                            btn_conn = pygame.Rect(WIDTH//2 - 250 + 50, HEIGHT//2 - 225 + 150, 120, 40)
                             if btn_conn.collidepoint(event.pos):
                                 if wifi_pwd_input.text == "iloveITF":
                                     # Succes! Connect laptop to nearest router

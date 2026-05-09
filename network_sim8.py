@@ -56,7 +56,7 @@ LANGS = {
             "",
             "Wat kun je allemaal doen?",
             "- Plaats PC's, Laptops, Switches en Routers (linksboven).",
-            "- Verbind apparaten met Cat 5 of snellere Cat 5e kabels (rechts).",
+            "- Verbind apparaten met Cat 5 of snellere fiber kabels (rechts).",
             "- Configureer IP-adressen via het besturingssysteem van elk apparaat.",
             "- Test je netwerk door data-pakketjes of webverkeer te sturen!",
             "",
@@ -88,8 +88,8 @@ pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Network Simulation")
 font = pygame.font.SysFont("Arial", 20, bold=True)
-mission_font = pygame.font.SysFont("Arial", 24, bold=True)
-small_font = pygame.font.SysFont("Arial", 16)
+mission_font = pygame.font.SysFont("lato", 30, bold=False)
+small_font = pygame.font.SysFont("lato", 16)
 
 bg_road = None
 try:
@@ -104,6 +104,14 @@ try:
     bg_level = pygame.transform.smoothscale(bg_level, (WIDTH, HEIGHT))
 except Exception as e:
     pass
+
+logo_img = None
+try:
+    logo_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Logo", "logo2.png")
+    # We laden het logo nu 1-op-1 in. Voor het beste resultaat: maak logo2.png exact 500px breed.
+    logo_img = pygame.image.load(logo_path).convert_alpha()
+except Exception as e:
+    print(f"Logo load error: {e}")
 
 gc_img = None
 try:
@@ -122,6 +130,7 @@ except Exception as e:
 devices = []
 connections = []
 packets = []
+packet_flash_timer = 0
 mission_sys = None
 current_mode = 'PC' 
 current_cable = 'Straight'
@@ -621,10 +630,20 @@ class SceneManager:
 
     def draw_start_screen(self, surface):
         surface.fill((30, 30, 40))
-        # Title
-        title_font = pygame.font.SysFont('Arial', 60, bold=True)
-        t_surf = title_font.render("NETWORK SIMULATOR", True, CYAN)
-        surface.blit(t_surf, (WIDTH//2 - t_surf.get_width()//2, 120))
+        # Logo as Title
+        if logo_img:
+            surface.blit(logo_img, (WIDTH//2 - logo_img.get_width()//2, 60))
+            y_slogan = 60 + logo_img.get_height() + 20
+        else:
+            title_font = pygame.font.SysFont('urbanist', 80, bold=True)
+            t_surf = title_font.render("Packetry", True, (52, 50, 199))
+            surface.blit(t_surf, (WIDTH//2 - t_surf.get_width()//2, 80))
+            y_slogan = 170
+        
+        # Slogan
+        slogan_font = pygame.font.SysFont('urbanist', 32, italic=True)
+        s_surf = slogan_font.render("Engineering the flow", True, (0, 255, 148))
+        surface.blit(s_surf, (WIDTH//2 - s_surf.get_width()//2, y_slogan))
         
         # Play / Quit / Extra Info Buttons (Vertically stacked)
         btn_play = pygame.Rect(WIDTH//2 - 100, 280, 200, 60)
@@ -977,7 +996,7 @@ class MissionSystem:
                 Mission("Configureer de LAN IPs van de Routers: R1 (192.168.2.1) en R2 (192.168.3.1) met subnet 255.255.255.0.", "L3_H2_IPS"),
                 Mission("Zet de DHCP Server 'AAN' in de instellingen van Router 1.", "L3_ENABLE_DHCP_SRV"),
                 Mission("Zet de PC op DHCP in zijn IP-instellingen.", "L3_USE_DHCP"),
-                Mission("Plaats een Laptop bij Router 1 en verbind via het WiFi menu (SSID: TM_intern, wachtwoord: iloveITF).", "L3_H2_LAP"),
+                Mission("Plaats een Laptop bij Router 2 en verbind via het WiFi menu (SSID: TM_intern, wachtwoord: iloveITF).", "L3_H2_LAP"),
                 Mission("Lees de uitleg over Wi-Fi frequenties.", "EXPLANATION_WIFI"),
                 Mission("Stuur een pakketje (SPATIE) van de PC naar de Laptop door beide routers!", "L3_H2_FINAL"),
                 Mission("Huis 2 voltooid! Terug naar de Wereldkaart...", "L3_TO_WORLD_2"),
@@ -1009,7 +1028,7 @@ class MissionSystem:
         mission = self.get_current()
         if not mission or mission.type == "DONE":
             text = get_text('free_mode') if not mission else mission.text
-            t_surf = mission_font.render(text, True, YELLOW)
+            t_surf = mission_font.render(text, True, WHITE)
             # Display at the bottom instead of top
             surface.blit(t_surf, (WIDTH//2 - t_surf.get_width()//2, HEIGHT - 60))
             return
@@ -1030,7 +1049,7 @@ class MissionSystem:
                                    guidance = "Klik nu op Opslaan!"
             
             # Draw guidance at the bottom
-            g_surf = font.render(guidance, True, YELLOW)
+            g_surf = font.render(guidance, True, WHITE)
             pygame.draw.rect(surface, (0,0,0,150), (WIDTH//2 - g_surf.get_width()//2 - 10, HEIGHT - 50, g_surf.get_width() + 20, 35))
             surface.blit(g_surf, (WIDTH//2 - g_surf.get_width()//2, HEIGHT - 45))
             return # Don't draw the other redundant texts
@@ -1043,9 +1062,9 @@ class MissionSystem:
             
         y = HEIGHT - 80 # Mission info at bottom
         for l in lines:
-            t_surf = mission_font.render(l, True, YELLOW)
+            t_surf = mission_font.render(l, True, (239, 233, 244))
             surface.blit(t_surf, (WIDTH//2 - t_surf.get_width()//2, y))
-            y += 28
+            y += 35
 
         if mission.type == "L1_EXP_MOUSE":
             # Ghost cable animation between PC1 and Hub
@@ -1149,7 +1168,7 @@ class MissionSystem:
             pygame.draw.rect(ov_surf, RED, box, 3)
             
             text_lines = {
-                'nl': ["Oeps! De verbinding is mislukt...", "", "Je probeert data over een te grote afstand te sturen met een Cat 5 kabel.", "Een standaard Cat 5 (koper)kabel is maar geschikt voor maximaal 100 meter.", "Hoe langer de kabel, hoe zwakker je signaal wordt. Dit noemt men 'attenuatie'.", "", "Gelukkig is er de Cat 5e (enhanced) kabel! Deze kan data beter en sneller", "sturen doordat de koperdraadjes strakker in elkaar gedraaid zitten tegen storingen.", "", "Klik hier ergens in dit vak om verder te gaan"],
+                'nl': ["Oeps! De verbinding is mislukt...", "", "Je probeert data over een te grote afstand te sturen met een Cat 5 kabel.", "Een standaard Cat 5 (koper)kabel is maar geschikt voor maximaal 100 meter.", "Hoe langer de kabel, hoe zwakker je signaal wordt. Dit noemt men 'attenuatie'.", "", "Gelukkig is er fiber! Fiber kan data veel beter en sneller", "sturen doordat dit gebruik maakt van lichtsignalen.", "", "Klik hier ergens in dit vak om verder te gaan"],
                 'en': ["Oops! The connection failed...", "", "You are trying to send data over too long a distance with a Cat 5 cable.", "A standard Cat 5 (copper) cable is only suitable for a maximum of 100 meters.", "The longer the cable, the weaker your signal becomes. This is called 'attenuation'.", "", "Fortunately, there is the Cat 5e (enhanced) cable! It can send data better and faster", "because the copper wires are twisted tighter against interference.", "", "Click anywhere in this box to continue"],
                 'fr': ["Oups ! La connexion a échoué...", "", "Vous essayez d'envoyer des données sur une trop longue distance avec un câble Cat 5.", "Un câble Cat 5 standard n'est adapté que pour un maximum de 100 mètres.", "Plus le câble est long, plus le signal s'affaibit. C'est ce qu'on appelle 'l'atténuation'.", "", "Heureusement, il existe le câble Cat 5e ! Il envoie les données mieux et plus vite", "car les fils de cuivre sont torsadés plus serrés contre les interférences.", "", "Cliquez ici pour continuer"]
             }
@@ -1515,12 +1534,12 @@ class MissionSystem:
             lines = [
                 "BASIS APPARATUUR",
                 "",
-                "PC: Je vaste werkplek. Heeft een kabel nodig.",
+                "PC: Je vaste werkstation.Gebruikt kabels om te verbinden met andere.",
                 "LAPTOP: Flexibel werkstation. Kan kabel of Wi-Fi gebruiken.",
-                "HUB: Een verdeeldoos. Stuurt data naar iedereen (dom).",
+                "HUB: Een verdeeldoos. Stuurt data naar iedereen er op aangesloten.",
                 "SWITCH: Een slimme Hub. Stuurt data alleen naar de juiste poort.",
-                "ROUTER: De poort naar de rest van de wereld (WAN/Internet).",
-                "CONVERTER: Zet glasvezel (Fiber) om naar koper (RJ45).",
+                "ROUTER: De poort naar de rest van de wereld (Internet).",
+                "CONVERTER: Vertaalt lichtsignalen uit glasvezel naar elektrische signalen voor koperkabels (Cat5).",
                 "",
                 "Klik hier om te beginnen met je eerste netwerk!"
             ]
@@ -2102,7 +2121,7 @@ def find_path_to_type(devices, connections, start_dev, dev_type='Router'):
     return None
 
 def main():
-    global sm, mission_sys, devices, connections, packets, current_mode, current_cable, btn_modi
+    global sm, mission_sys, devices, connections, packets, current_mode, current_cable, btn_modi, packet_flash_timer
     sm = SceneManager()
     mission_sys = MissionSystem()
     
@@ -2277,6 +2296,7 @@ def main():
                     elif event.key == pygame.K_3: current_mode = 'Switch'
                     elif event.key == pygame.K_4: current_mode = 'Hub'
                     elif event.key == pygame.K_5: current_mode = 'Router'
+                    elif event.key == pygame.K_6: current_mode = 'Converter'
                     elif event.key == pygame.K_d: current_mode = 'DELETE'
                     elif event.key == pygame.K_F3:
                         # DEBUG SKIP TO LEVEL 3
@@ -2285,6 +2305,7 @@ def main():
                         sm.current = 'World'
                     elif event.key == pygame.K_SPACE:
                         mission_sys.packets_sent += 1
+                        packet_flash_timer = 15
                         mission = mission_sys.get_current()
                         if sm.current == 'World':
                             # Send packet between House 1 and House 2
@@ -2878,13 +2899,18 @@ def main():
                             mission_sys.advance()
                         continue
                     if btn_wan.collidepoint(event.pos):
-                        current_cable = 'WAN Fiber'
-                        mission = mission_sys.get_current()
-                        if mission and mission.type == "L3_PICK_WAN":
-                            mission_sys.advance()
+                        if is_free_mode:
+                            current_cable = 'Fiber'
+                        else:
+                            current_cable = 'WAN Fiber'
+                            mission = mission_sys.get_current()
+                            if mission and mission.type == "L3_PICK_WAN":
+                                mission_sys.advance()
                         continue
                                             
                     if btn_data.collidepoint(event.pos):
+                        mission_sys.packets_sent += 1
+                        packet_flash_timer = 15
                         # Trigger Spatie logic
                         if sm.current == 'World':
                             h1 = next((d for d in devices if d.type == 'House1'), None)
@@ -3077,6 +3103,12 @@ def main():
                                             error_timer = 180
                                             m = mission_sys.get_current()
                                             if m and m.type == "TRY_FIBER_FAIL": mission_sys.advance()
+
+                                    # Nieuw: Geen koper (Straight/Cross/Cat5) tussen twee Converters
+                                    if current_cable in ('Straight', 'Crossover', 'Cat 5') and dev1 == 'Converter' and dev2 == 'Converter':
+                                        valid_cable = False
+                                        error_msg = "Koperkabels werken niet tussen twee Converters. Gebruik Fiber!"
+                                        error_timer = 180
 
                                     # Alleen vanaf Level 3 controleren we op Straight vs Crossover
                                     if valid_cable and mission_sys.level >= 3 and current_cable in ('Straight', 'Crossover'):
@@ -3328,11 +3360,11 @@ def main():
                 if sm.current == 'World':
                     continue
                     
-                bgcolor = (100, 200, 100) if current_mode == m_t else (60, 60, 60)
+                bgcolor = (0, 255, 148) if current_mode == m_t else (60, 60, 60)
                 if m_t == 'DELETE':
                     bgcolor = RED if current_mode == 'DELETE' else (60, 60, 60)
                 pygame.draw.rect(screen, bgcolor, r)
-                pygame.draw.rect(screen, WHITE, r, 2)
+                pygame.draw.rect(screen, (52, 50, 199), r, 2)
                 
                 icon = ICONS.get(m_t)
                 if icon:
@@ -3359,8 +3391,9 @@ def main():
                     
             if sm.current != 'World':
                 # Space button (only show/enable in appropriate phases)
-                pygame.draw.rect(screen, (60, 60, 60), btn_data)
-                pygame.draw.rect(screen, WHITE, btn_data, 2)
+                p_color = (135, 246, 255) if packet_flash_timer > 0 else (60, 60, 60)
+                pygame.draw.rect(screen, p_color, btn_data)
+                pygame.draw.rect(screen, (52, 50, 199), btn_data, 2)
                 
                 # Label ABOVE icon
                 dt = small_font.render(f"[{get_text('spacebar')}]", True, WHITE)
@@ -3377,17 +3410,19 @@ def main():
                 menu_title = font.render(get_text('select_cable') if 'select_cable' in LANGS[current_lang] else ("Choose Cable:" if current_lang == 'en' else "Choisir Câble:" if current_lang == 'fr' else "Kies Kabel:"), True, WHITE)
                 screen.blit(menu_title, (810, 50))
                 
-                # Level 1 & 2: Show Cat 5 + Cat 5e; Level 3+: Show Straight + Crossover
-                level_low = (mission_sys.level <= 2)
-                if level_low:
+                # Level 1 & 2: Show Cat 5 + Cat 5e; Level 3+: Show Straight + Crossover; Free Mode: Show 3 options
+                is_free_mode = mission_sys.get_current() is None or mission_sys.get_current().type == "DONE"
+                if is_free_mode:
+                    cable_btns = [(btn_straight, 'Straight'), (btn_cross, 'Crossover'), (btn_wan, 'Fiber')]
+                elif mission_sys.level <= 2:
                     cable_btns = [(btn_straight, 'Cat 5'), (btn_cross, 'Fiber')]
                 else:
                     cable_btns = [(btn_straight, 'Straight'), (btn_cross, 'Crossover')]
                 
                 for btn, name in cable_btns:
-                    btn_color = (60, 60, 60) if current_cable != name else (100, 200, 100)
+                    btn_color = (0, 255, 148) if current_cable == name else (60, 60, 60)
                     pygame.draw.rect(screen, btn_color, btn)
-                    pygame.draw.rect(screen, WHITE, btn, 2)
+                    pygame.draw.rect(screen, (52, 50, 199), btn, 2)
                     lbl_key = 'cat_straight' if name in ('Straight', 'Cat 5') else 'cat_cross' if name in ('Crossover', 'Fiber') else 'wan_label'
                     label = 'Cat 5' if name == 'Cat 5' else 'Fiber' if name == 'Fiber' else get_text(lbl_key)
                     t = font.render(label, True, WHITE)
@@ -3432,11 +3467,11 @@ def main():
                 pygame.draw.rect(os_surf, (230, 230, 230), box)
                 os_surf.blit(tm_img, (box.x, box.y + 30))
             else:
-                pygame.draw.rect(os_surf, (240, 240, 240), box)
+                pygame.draw.rect(os_surf, (40, 40, 50), box)
             
-            pygame.draw.rect(os_surf, (200, 200, 200), (box.x, box.y, box.width, 30))
-            pygame.draw.line(os_surf, GRAY, (box.x, box.y + 30), (box.x + box.width, box.y + 30), 2)
-            pygame.draw.rect(os_surf, GRAY, box, 3)
+            pygame.draw.rect(os_surf, (30, 30, 40), (box.x, box.y, box.width, 30))
+            pygame.draw.line(os_surf, (52, 50, 199), (box.x, box.y + 30), (box.x + box.width, box.y + 30), 2)
+            pygame.draw.rect(os_surf, (52, 50, 199), box, 3)
             
             pygame.draw.circle(os_surf, RED, (box.x + 15, box.y + 15), 6)
             pygame.draw.circle(os_surf, YELLOW, (box.x + 35, box.y + 15), 6)
@@ -3445,8 +3480,7 @@ def main():
             if active_window != "MENU":
                 btn_back = pygame.Rect(box.x + 75, box.y + 4, 60, 22)
                 pygame.draw.rect(os_surf, GRAY, btn_back)
-                pygame.draw.rect(os_surf, BLACK, btn_back, 1)
-                t = small_font.render(get_text('back'), True, BLACK)
+                t = small_font.render(get_text('back'), True, WHITE)
                 os_surf.blit(t, (btn_back.x + 10, btn_back.y + 2))
                 
             title_text = ""
@@ -3458,7 +3492,7 @@ def main():
                 title_text = f"{get_text('web_browsing')} - {active_device.type}"
                 
             tx = box.x + 150 if active_window != "MENU" else box.x + 80
-            t = font.render(title_text, True, BLACK)
+            t = font.render(title_text, True, WHITE)
             os_surf.blit(t, (tx, box.y + 3))
 
             # Inner content
@@ -3481,7 +3515,7 @@ def main():
                         os_surf.blit(icon, (bx + 35, by + 15))
                     
                     # Label (Localized)
-                    lbl = font.render(get_text(key), True, BLACK)
+                    lbl = font.render(get_text(key), True, WHITE)
                     os_surf.blit(lbl, (bx + 65 - lbl.get_width()//2, by + 90))
                     
                     bx += 145
@@ -3492,7 +3526,7 @@ def main():
                 # --- PC/Laptop: DHCP toggle ABOVE IP inputs ---
                 if mission_sys.level >= 3 and active_device.type in ('PC', 'Laptop'):
                     is_dhcp = getattr(active_device, 'dhcp', False)
-                    dhcp_lbl = font.render("DHCP:", True, BLACK)
+                    dhcp_lbl = font.render("DHCP:", True, WHITE)
                     os_surf.blit(dhcp_lbl, (WIDTH//2 - 200, cy - 100))
                     btn_dhcp = pygame.Rect(WIDTH//2 + 20, cy - 105, 140, 32)
                     pygame.draw.rect(os_surf, (0, 180, 0) if is_dhcp else (160, 50, 50), btn_dhcp, 0, 6)
@@ -3509,7 +3543,7 @@ def main():
                     os_surf.blit(isp_t, (btn_isp_sett.x + btn_isp_sett.width//2 - isp_t.get_width()//2, btn_isp_sett.y + 6))
 
                 # --- IP Address input ---
-                t1 = font.render("IP Adres:", True, BLACK)
+                t1 = font.render("IP Adres:", True, WHITE)
                 os_surf.blit(t1, (WIDTH//2 - 200, cy - 40))
 
                 # Gray out inputs if PC DHCP is active
@@ -3531,25 +3565,25 @@ def main():
                     ip_input.draw(os_surf)
 
                 # --- Subnet mask input ---
-                t2 = font.render("Subnet Mask:", True, BLACK)
+                t2 = font.render("Subnet Mask:", True, WHITE)
                 os_surf.blit(t2, (WIDTH//2 - 200, cy + 20))
                 if not is_dhcp_on:
                     subnet_input.draw(os_surf)
 
                 # --- Level 2+ Gateway & DNS ---
                 if mission_sys.level >= 2 and active_device.type in ('PC', 'Laptop'):
-                    t3 = font.render("Default GW:", True, BLACK)
+                    t3 = font.render("Default GW:", True, WHITE)
                     os_surf.blit(t3, (WIDTH//2 - 200, cy + 80))
                     if not is_dhcp_on: gw_input.draw(os_surf)
                     
-                    t4 = font.render("DNS Server:", True, BLACK)
+                    t4 = font.render("DNS Server:", True, WHITE)
                     os_surf.blit(t4, (WIDTH//2 - 200, cy + 140))
                     if not is_dhcp_on: dns_input.draw(os_surf)
 
                 # --- Router: DHCP Server toggle BELOW subnet (Level 3+) ---
                 if mission_sys.level >= 3 and active_device.type == 'Router':
                     is_srv = getattr(active_device, 'dhcp_srv', False)
-                    srv_lbl = font.render("DHCP Server:", True, BLACK)
+                    srv_lbl = font.render("DHCP Server:", True, WHITE)
                     os_surf.blit(srv_lbl, (WIDTH//2 - 200, cy + 85))
                     btn_srv = pygame.Rect(WIDTH//2 + 20, cy + 80, 140, 32)
                     pygame.draw.rect(os_surf, (0, 120, 200) if is_srv else (160, 50, 50), btn_srv, 0, 6)
@@ -3562,8 +3596,8 @@ def main():
                 btn_save = pygame.Rect(WIDTH//2 - 50, save_y, 100, 30)
                 if not is_dhcp_on:
                     pygame.draw.rect(os_surf, (100, 200, 100), btn_save)
-                    pygame.draw.rect(os_surf, BLACK, btn_save, 2)
-                    st = font.render(get_text('save'), True, BLACK)
+                    pygame.draw.rect(os_surf, (52, 50, 199), btn_save, 2)
+                    st = font.render(get_text('save'), True, WHITE)
                     os_surf.blit(st, (btn_save.x + btn_save.width//2 - st.get_width()//2, btn_save.y + 5))
 
             elif active_window == "ISP":
@@ -3597,7 +3631,7 @@ def main():
                 ]
                 
                 for label, inp, y in inputs:
-                    lbl = small_font.render(label, True, BLACK)
+                    lbl = small_font.render(label, True, WHITE)
                     os_surf.blit(lbl, (box.x + 50, y))
                     # Align input boxes nicely
                     inp.x = box.x + 220
@@ -3607,8 +3641,8 @@ def main():
                 # Save button for ISP - repositioned to avoid overlap
                 btn_save_isp = pygame.Rect(box.x + box.width//2 - 75, box.y + 340, 150, 40)
                 pygame.draw.rect(os_surf, (100, 200, 100), btn_save_isp)
-                pygame.draw.rect(os_surf, BLACK, btn_save_isp, 2)
-                st = font.render("Opslaan", True, BLACK)
+                pygame.draw.rect(os_surf, (52, 50, 199), btn_save_isp, 2)
+                st = font.render("Opslaan", True, WHITE)
                 os_surf.blit(st, (btn_save_isp.x + btn_save_isp.width//2 - st.get_width()//2, btn_save_isp.y + 8))
 
             elif active_window == "WEB":
@@ -3693,6 +3727,9 @@ def main():
             mission_sys.draw_overlays(screen, devices)
         sm.draw(screen)
         
+        if packet_flash_timer > 0:
+            packet_flash_timer -= 1
+            
         pygame.display.flip()
         clock.tick(60)
 

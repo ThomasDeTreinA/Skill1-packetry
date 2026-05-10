@@ -2396,9 +2396,6 @@ def main():
                                             mission_sys.fail_msg = "Zorg dat alle 3 de PC's met de Switch verbonden zijn!"
                                             mission_sys.fail_timer = 180
                                     continue
-                                            mission_sys.fail_msg = "Zorg dat alle 3 de PC's met de Switch verbonden zijn!"
-                                            mission_sys.fail_timer = 180
-                                    continue
                                 elif mission.type == "L1_TEST_FIBER":
                                     sw = next((d for d in devices if d.type == 'Switch'), None)
                                     pc4 = next((d for d in devices if d.type == 'PC' and d.name_idx == 4), None)

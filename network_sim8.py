@@ -401,7 +401,8 @@ class TextInput:
         self.rect.x = self.x
         self.rect.y = self.y
         pygame.draw.rect(surface, WHITE, self.rect)
-        pygame.draw.rect(surface, BLACK if not self.active else BLUE, self.rect, 2)
+        border_color = (52, 50, 199) if self.active else (100, 100, 100)
+        pygame.draw.rect(surface, border_color, self.rect, 2)
         display_text = self.text if not self.password_mode else "*" * len(self.text)
         t = font.render(display_text, True, BLACK)
         surface.blit(t, (self.rect.x + 5, self.rect.y + 5))
@@ -966,7 +967,7 @@ class MissionSystem:
                 Mission("Klik nu op Opslaan.", "L3_H1_ISP_SAVE"),
                 Mission("Stel Router 1 LAN IP in: 192.168.1.1, Subnet Mask: 255.255.255.0", "CONF_ROUTER"),
                 Mission("Klik voor uitleg over DHCP (Dynamic Host Configuration Protocol).", "L3_EXPLAIN_DHCP"),
-                Mission("Zet de DHCP Server 'AAN' in de instellingen van Router 1.", "L3_ENABLE_DHCP_SRV"),
+                Mission("Zet de DHCP Server 'AAN' in de IP instellingen van Router 1.", "L3_ENABLE_DHCP_SRV"),
                 Mission("Zet DHCP aan op BEIDE PC's in hun IP-instellingen.", "L3_USE_DHCP"),
                 Mission("Stel Router 2 LAN IP in: 192.168.1.254, Subnet Mask: 255.255.255.0", "L3_H1_R2_LAN"),
                 Mission("Zet ook de DHCP Server 'AAN' op Router 2.", "L3_ENABLE_DHCP_SRV_R2"),
@@ -994,7 +995,7 @@ class MissionSystem:
                 Mission("Verbind: Router 1 -> Switch -> PC (Straight).", "L3_H2_CONNECT_P1"),
                 Mission("Plaats een tweede Router en verbind deze met Router 1 (Crossover).", "L3_H2_R2"),
                 Mission("Configureer de LAN IPs van de Routers: R1 (192.168.2.1) en R2 (192.168.3.1) met subnet 255.255.255.0.", "L3_H2_IPS"),
-                Mission("Zet de DHCP Server 'AAN' in de instellingen van Router 1.", "L3_ENABLE_DHCP_SRV"),
+                Mission("Zet de DHCP Server 'AAN' in de ip instellingen van Router 1.", "L3_ENABLE_DHCP_SRV"),
                 Mission("Zet de PC op DHCP in zijn IP-instellingen.", "L3_USE_DHCP"),
                 Mission("Plaats een Laptop bij Router 2 en verbind via het WiFi menu (SSID: TM_intern, wachtwoord: iloveITF).", "L3_H2_LAP"),
                 Mission("Lees de uitleg over Wi-Fi frequenties.", "EXPLANATION_WIFI"),
@@ -3529,16 +3530,16 @@ def main():
                     dhcp_lbl = font.render("DHCP:", True, WHITE)
                     os_surf.blit(dhcp_lbl, (WIDTH//2 - 200, cy - 100))
                     btn_dhcp = pygame.Rect(WIDTH//2 + 20, cy - 105, 140, 32)
-                    pygame.draw.rect(os_surf, (0, 180, 0) if is_dhcp else (160, 50, 50), btn_dhcp, 0, 6)
-                    pygame.draw.rect(os_surf, BLACK, btn_dhcp, 2, 6)
+                    pygame.draw.rect(os_surf, (52, 50, 199) if is_dhcp else (100, 100, 100), btn_dhcp, 0, 6)
+                    pygame.draw.rect(os_surf, (52, 50, 199), btn_dhcp, 2, 6)
                     dhcp_st = font.render("Actief" if is_dhcp else "Niet Actief", True, WHITE)
                     os_surf.blit(dhcp_st, (btn_dhcp.x + btn_dhcp.width//2 - dhcp_st.get_width()//2, btn_dhcp.y + 6))
 
                 # --- Router ISP Button ---
                 if active_device.type == 'Router' and active_window == "IP":
                     btn_isp_sett = pygame.Rect(WIDTH//2 - 100, cy - 105, 200, 32)
-                    pygame.draw.rect(os_surf, (150, 150, 180), btn_isp_sett, 0, 5)
-                    pygame.draw.rect(os_surf, BLACK, btn_isp_sett, 2, 5)
+                    pygame.draw.rect(os_surf, (80, 80, 100), btn_isp_sett, 0, 5)
+                    pygame.draw.rect(os_surf, (52, 50, 199), btn_isp_sett, 2, 5)
                     isp_t = font.render("ISP Instellingen", True, WHITE)
                     os_surf.blit(isp_t, (btn_isp_sett.x + btn_isp_sett.width//2 - isp_t.get_width()//2, btn_isp_sett.y + 6))
 
@@ -3586,8 +3587,8 @@ def main():
                     srv_lbl = font.render("DHCP Server:", True, WHITE)
                     os_surf.blit(srv_lbl, (WIDTH//2 - 200, cy + 85))
                     btn_srv = pygame.Rect(WIDTH//2 + 20, cy + 80, 140, 32)
-                    pygame.draw.rect(os_surf, (0, 120, 200) if is_srv else (160, 50, 50), btn_srv, 0, 6)
-                    pygame.draw.rect(os_surf, BLACK, btn_srv, 2, 6)
+                    pygame.draw.rect(os_surf, (52, 50, 199) if is_srv else (100, 100, 100), btn_srv, 0, 6)
+                    pygame.draw.rect(os_surf, (52, 50, 199), btn_srv, 2, 6)
                     srv_st = font.render("Actief" if is_srv else "Niet Actief", True, WHITE)
                     os_surf.blit(srv_st, (btn_srv.x + btn_srv.width//2 - srv_st.get_width()//2, btn_srv.y + 6))
 
@@ -3604,8 +3605,8 @@ def main():
                 # Vergroten van de box voor ISP instellingen om overlap te voorkomen
                 box = pygame.Rect(WIDTH//2 - 280, HEIGHT//2 - 200, 560, 400)
                 pygame.draw.rect(os_surf, (240, 240, 240), box)
-                pygame.draw.rect(os_surf, (200, 200, 200), (box.x, box.y, box.width, 30))
-                pygame.draw.rect(os_surf, GRAY, box, 3)
+                pygame.draw.rect(os_surf, (30, 30, 40), (box.x, box.y, box.width, 30))
+                pygame.draw.rect(os_surf, (52, 50, 199), box, 3)
                 
                 # Header buttons
                 pygame.draw.circle(os_surf, RED, (box.x + 15, box.y + 15), 6)
@@ -3614,12 +3615,12 @@ def main():
                 
                 btn_back = pygame.Rect(box.x + 75, box.y + 4, 60, 22)
                 pygame.draw.rect(os_surf, GRAY, btn_back)
-                pygame.draw.rect(os_surf, BLACK, btn_back, 1)
-                t = small_font.render(get_text('back'), True, BLACK)
+                pygame.draw.rect(os_surf, (52, 50, 199), btn_back, 1)
+                t = small_font.render(get_text('back'), True, WHITE)
                 os_surf.blit(t, (btn_back.x + 10, btn_back.y + 2))
 
                 cy = box.y + 45
-                title = font.render("WAN / ISP Instellingen", True, BLUE)
+                title = font.render("WAN / ISP Instellingen", True, (52, 50, 199))
                 os_surf.blit(title, (box.x + box.width//2 - title.get_width()//2, box.y + 5))
                 
                 inputs = [
@@ -3647,7 +3648,7 @@ def main():
 
             elif active_window == "WEB":
                 if not mission_sys.surf_success:
-                    t = font.render("URL:", True, BLACK)
+                    t = font.render("URL:", True, WHITE)
                     os_surf.blit(t, (WIDTH//2 - 200, HEIGHT//2 + 5))
                     url_input.draw(os_surf)
                     

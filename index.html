@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Packetry - Engineering the Flow</title>
+    <!-- Fonts: Urbanist & Lato -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&family=Urbanist:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --space-black: #0B0F19;
+            --card-bg: #151D30;
+            --cyber-blue: #00D2FF;
+            --stream-blue: #0076FF;
+            --protocol-green: #39FF14;
+            --text-light: #E2E8F0;
+            --text-muted: #94A3B8;
+            --border-color: #243352;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--space-black);
+            color: var(--text-light);
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+
+        h1, h2, h3, .font-urbanist {
+            font-family: 'Urbanist', sans-serif;
+            font-weight: 700;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Style */
+        header {
+            text-align: center;
+            padding: 60px 20px 40px 20px;
+            background: linear-gradient(180deg, rgba(0, 210, 255, 0.1) 0%, rgba(11, 15, 25, 0) 100%);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo-placeholder {
+            font-family: 'Urbanist', sans-serif;
+            font-weight: 900;
+            font-size: 3.5rem;
+            color: #ffffff;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .logo-accent {
+            color: var(--cyber-blue);
+        }
+
+        /* E-balken imitatie in logo */
+        .logo-bars {
+            display: inline-flex;
+            flex-direction: column;
+            gap: 5px;
+            vertical-align: middle;
+            margin-left: -5px;
+            margin-right: 5px;
+        }
+
+        .logo-bar {
+            width: 30px;
+            height: 6px;
+            background-color: var(--cyber-blue);
+            transform: skewX(-15deg);
+        }
+
+        header p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 60px0;
+            margin: 15px auto 0 auto;
+            font-style: italic;
+        }
+
+        /* Quick Navigation */
+        .nav-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            background-color: var(--card-bg);
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-family: 'Urbanist', sans-serif;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            border-color: var(--cyber-blue);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--stream-blue), var(--cyber-blue));
+            border: none;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
+        }
+
+        /* Section Layouts */
+        section {
+            margin-top: 50px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+        }
+
+        section h2 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #ffffff;
+            border-left: 4px solid var(--cyber-blue);
+            padding-left: 12px;
+        }
+
+        /* Interactive Simulator Preview */
+        .sim-preview {
+            background-color: #080B12;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-top: 20px;
+            position: relative;
+        }
+
+        .network-canvas {
+            width: 100%;
+            height: 250px;
+            background-color: #030508;
+            border-radius: 6px;
+            margin-top: 15px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #1a263d;
+        }
+
+        .node {
+            width: 50px;
+            height: 50px;
+            background-color: #1a263d;
+            border: 2px solid var(--cyber-blue);
+            border-radius: 8px;
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Urbanist', sans-serif;
+            font-weight: 600;
+            font-size: 0.8rem;
+            color: #fff;
+            z-index: 2;
+        }
+
+        .cable-line {
+            position: absolute;
+            height: 2px;
+            background-color: var(--text-muted);
+            z-index: 1;
+            transform-origin: 0 0;
+        }
+
+        .packet {
+            width: 10px;
+            height: 10px;
+            background-color: var(--protocol-green);
+            border-radius: 50%;
+            position: absolute;
+            z-index: 3;
+            box-shadow: 0 0 10px var(--protocol-green);
+        }
+
+        /* Table Design */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: rgba(255, 255, 255, 0.03);
+            font-family: 'Urbanist', sans-serif;
+            color: #ffffff;
+        }
+
+        tr:hover td {
+            background-color: rgba(0, 210, 255, 0.02);
+        }
+
+        /* Codeblock styling */
+        pre {
+            background-color: #080B12;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            margin: 15px 0;
+        }
+
+        code {
+            font-family: monospace;
+            color: var(--cyber-blue);
+        }
+
+        pre code {
+            color: var(--text-light);
+        }
+
+        /* FAQ Accordion */
+        .faq-item {
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 0;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-family: 'Urbanist', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #ffffff;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faq-question::after {
+            content: '+';
+            font-size: 1.4rem;
+            color: var(--cyber-blue);
+            transition: transform 0.3s ease;
+        }
+
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, margin-top 0.3s ease;
+            color: var(--text-muted);
+        }
+
+        .faq-item.active .faq-question::after {
+            content: '−';
+        }
+
+        .faq-item.active .faq-answer {
+            max-height: 200px;
+            margin-top: 10px;
+        }
+
+        /* Contact Grid */
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .contact-card {
+            background-color: #080B12;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: border-color 0.3s ease;
+        }
+
+        .contact-card:hover {
+            border-color: var(--cyber-blue);
+        }
+
+        .contact-card h3 {
+            margin-bottom: 5px;
+            color: #ffffff;
+        }
+
+        .contact-card p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+        }
+
+        .contact-links {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .contact-link {
+            font-size: 0.85rem;
+            color: var(--cyber-blue);
+            text-decoration: none;
+            border: 1px solid rgba(0, 210, 255, 0.2);
+            padding: 4px 10px;
+            border-radius: 4px;
+            background-color: rgba(0, 210, 255, 0.05);
+        }
+
+        .contact-link:hover {
+            background-color: var(--cyber-blue);
+            color: var(--space-black);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 60px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+        }
+
+        /* Notification / Alert element */
+        .alert {
+            background-color: rgba(57, 255, 20, 0.1);
+            border: 1px solid var(--protocol-green);
+            color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo-placeholder">
+            P<span class="logo-bars"><span class="logo-bar"></span><span class="logo-bar"></span><span class="logo-bar"></span></span>cketry
+        </div>
+        <p>"Engineering the Flow"</p>
+        <p style="font-size: 1.05rem; margin-top: 5px; color: var(--cyber-blue); font-style: normal;">De interactieve netwerk-simulator die droge IT-theorie transformeert in tastbare praktijk.</p>
+        
+        <div class="nav-buttons">
+            <a href="#demo" class="btn btn-primary">🎮 Live Data Flow Testen</a>
+            <a href="#installatie" class="btn">🔌 Thuis Spelen</a>
+            <a href="#levels" class="btn">📚 Level Info</a>
+            <a href="#faq" class="btn">💬 FAQ</a>
+            <a href="#contact" class="btn">📬 Contact</a>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <div class="alert">
+            <span style="color: var(--protocol-green); font-size: 1.2rem;">✔</span>
+            <span>Welkom op onze site! Bekijk deze pagina om alle antwoorden te vinden, documentatie in te zien, of de game direct thuis te downloaden.</span>
+        </div>
+
+        <!-- LIVE DEMO CANVAS VISUALIZATION -->
+        <section id="demo">
+            <h2>🎮 Interactieve Data Flow Test</h2>
+            <p>Klik op de knop hieronder om een gesimuleerd ICMP 'Ping'-pakketje door het Packetry netwerk te sturen en de flow visueel te controleren!</p>
+            
+            <div class="sim-preview">
+                <button class="btn btn-primary" id="btn-ping" style="margin-bottom: 10px;">Verstuur Ping (PC A ➔ PC B)</button>
+                <div class="network-canvas" id="canvas">
+                    <!-- Nodes placed precisely -->
+                    <div class="node" style="left: 40px; top: 100px;" id="node-pca">PC A</div>
+                    <div class="node" style="left: 420px; top: 40px;" id="node-switch">Switch</div>
+                    <div class="node" style="left: 420px; top: 160px;" id="node-router">Router</div>
+                    <div class="node" style="left: 800px; top: 100px;" id="node-pcb">PC B</div>
+                    
+                    <!-- Cables rendering simulated by simple SVG lines or pure css lines -->
+                    <div id="packet-element" class="packet" style="display: none;"></div>
+                </div>
+                <p id="sim-status" style="margin-top: 10px; font-family: monospace; color: var(--text-muted);">Status: Idle</p>
+            </div>
+        </section>
+
+        <!-- THUIS SPELEN & INSTALLATIE -->
+        <section id="installatie">
+            <h2>🔌 Thuis Spelen & Installatie</h2>
+            <p>Wil je zelf ervaren hoe het is om stapsgewijs een netwerk op te bouwen? Je kunt Packetry heel eenvoudig lokaal op je eigen computer draaien via Python en Pygame.</p>
+            
+            <h3 style="margin-top: 20px; color: #ffffff;">Systeemeisen</h3>
+            <p style="color: var(--text-muted);">Windows, macOS of Linux met <strong>Python 3.10</strong> of nieuwer geïnstalleerd.</p>
+
+            <h3 style="margin-top: 20px; color: #ffffff;">Stap-voor-stap handleiding</h3>
+            <ol style="margin-left: 20px; margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+                <li><strong>Download het project:</strong> Klik bovenaan op onze GitHub repository op de groene knop <code>Code</code> en kies <code>Download ZIP</code>.</li>
+                <li><strong>Pak de ZIP-omgeving uit</strong> op een handige locatie op je computer.</li>
+                <li><strong>Installeer de libraries:</strong> Open je terminal/opdrachtprompt (CMD) in de uitgepakte map en voer uit:</li>
+            </ol>
+            <pre><code>pip install -r requirements.txt</code></pre>
+            
+            <p>4. <strong>Start de simulator:</strong> Lanceer de applicatie direct met het commando:</p>
+            <pre><code>python main.py</code></pre>
+        </section>
+
+        <!-- LEVEL EN CYCLUS DOSSIER -->
+        <section id="levels">
+            <h2>📚 Level Overzicht</h2>
+            <p>De simulator bevat 4 opeenvolgende levels die naadloos aansluiten op de officiële onderwijsdoelen van de 3e graad.</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Level</th>
+                        <th>Thema</th>
+                        <th>Wat je leert & ontdekt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Level 1</strong></td>
+                        <td>🔌 De Basis (LAN)</td>
+                        <td>Gebruik van PC's, Hubs en Switches. Werken met <strong>Straight-Through</strong> kabels en kabelafstanden (Cat 5 vs Cat 5e).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Level 2</strong></td>
+                        <td>🛠️ Routing & ISP</td>
+                        <td>Handmatige IP-configuratie, Subnet Masks en het instellen van <strong>ISP-gegevens</strong> op de router.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Level 3</strong></td>
+                        <td>🏢 DHCP & Crossover</td>
+                        <td>Blueprint-weergave, netwerkredundantie met routers (via <strong>Crossover</strong>) en <strong>DHCP</strong>-configuratie.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Level 4</strong></td>
+                        <td>🌍 Wi-Fi & Wereldkaart</td>
+                        <td>Draadloze <strong>Wi-Fi</strong> netwerken opzetten op een Laptop en gebouwen overbruggen via <strong>WAN Fiber</strong>.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- VEELGESTELDE VRAGEN -->
+        <section id="faq">
+            <h2>💬 Veelgestelde Vragen (FAQ)</h2>
+            
+            <div class="faq-item">
+                <div class="faq-question">Voor wie is deze simulator bedoeld?</div>
+                <div class="faq-answer">Packetry is specifiek ontworpen als een intuïtieve visuele brug voor studenten uit de 3e graad secundair onderwijs (Informaticawetenschappen / STEM). Het helpt leerlingen om de eindtermen rondom datacommunicatie sneller te verwerken via actieve gamificatie.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">Waarom verschilt Packetry van Cisco Packet Tracer?</div>
+                <div class="faq-answer">Cisco Packet Tracer is gebouwd voor professionals en heeft een steile leercurve. Packetry daarentegen biedt direct 'pick-up-and-play' comfort. Je ziet datapakketjes fysiek stromen; gaat er iets fout, dan stopt de stroom visueel. Dit is perfect voor beginners.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">In welke stack is dit ontwikkeld?</div>
+                <div class="faq-answer">De volledige simulator is geprogrammeerd in Python met gebruik van de Pygame library. De modulaire opbouw zorgt ervoor dat elk netwerkcomponent (Switch, Router, PC) functioneert als een configureerbare class.</div>
+            </div>
+        </section>
+
+        <!-- CONTACT PAGINA EN LINKEDIN -->
+        <section id="contact">
+            <h2>📬 Blijf in Contact</h2>
+            <p>Ben je een docent die Packetry in de klas wil inzetten, een IT-professional met sterke feedback, of wil je gewoon netwerken met het team? Connect met ons via LinkedIn of bekijk onze projecten!</p>
+            
+            <div class="contact-grid">
+                <div class="contact-card">
+                    <h3>Thomas Smeets</h3>
+                    <p>Developer & Designer</p>
+                    <div class="contact-links">
+                        <a href="https://github.com/itfactory-tm/2025-2026-1itf-1-webdesign-essentials-ThomasDeTreinA" class="contact-link" target="_blank">GitHub</a>
+                        <a href="#" class="contact-link">LinkedIn</a>
+                    </div>
+                </div>
+                <div class="contact-card">
+                    <h3>Floor De Wever</h3>
+                    <p>Recorder & Visuals</p>
+                    <div class="contact-links">
+                        <a href="#" class="contact-link">GitHub</a>
+                        <a href="#" class="contact-link">LinkedIn</a>
+                    </div>
+                </div>
+                <div class="contact-card">
+                    <h3>Quinten</h3>
+                    <p>Scrum Master & Quality</p>
+                    <div class="contact-links">
+                        <a href="#" class="contact-link">GitHub</a>
+                        <a href="#" class="contact-link">LinkedIn</a>
+                    </div>
+                </div>
+                <div class="contact-card">
+                    <h3>Yannick</h3>
+                    <p>Technical Documentation</p>
+                    <div class="contact-links">
+                        <a href="#" class="contact-link">GitHub</a>
+                        <a href="#" class="contact-link">LinkedIn</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>Gemaakt met passie voor netwerkinfrastructuur door Team Packetry</p>
+            <p style="color: var(--cyber-blue); margin-top: 5px;">1ITF01 - Thomas More Geel (2026)</p>
+        </footer>
+
+    </div>
+
+    <!-- Live simulator preview logica in Javascript -->
+    <script>
+        // FAQ Accordion Logica
+        document.querySelectorAll('.faq-question').forEach(button => {
+            button.addEventListener('click', () => {
+                const item = button.parentElement;
+                item.classList.toggle('active');
+            });
+        });
+
+        // Eenvoudige CSS Animatie / JS-flow van het pakketje om de flow te tonen aan de standbezoekers
+        const btnPing = document.getElementById('btn-ping');
+        const packet = document.getElementById('packet-element');
+        const statusText = document.getElementById('sim-status');
+
+        const positions = [
+            { left: 60, top: 120 },    // Start bij PC A
+            { left: 440, top: 60 },    // Naar Switch
+            { left: 440, top: 180 },   // Naar Router voor gateway check
+            { left: 440, top: 60 },    // Terug naar Switch
+            { left: 820, top: 120 }    // Naar Bestemming PC B
+        ];
+
+        let animating = false;
+
+        btnPing.addEventListener('click', () => {
+            if (animating) return;
+            animating = true;
+            packet.style.display = 'block';
+            statusText.style.color = 'var(--cyber-blue)';
+            
+            let stage = 0;
+            
+            function moveNext() {
+                if (stage < positions.length) {
+                    packet.style.transition = 'all 0.8s ease-in-out';
+                    packet.style.left = positions[stage].left + 'px';
+                    packet.style.top = positions[stage].top + 'px';
+                    
+                    if(stage === 1) statusText.innerText = "Status: Packet overgedragen aan Switch (Mac-tabel check)...";
+                    if(stage === 2) statusText.innerText = "Status: Router valideert gateway & ARP-omgeving...";
+                    if(stage === 4) {
+                        statusText.innerText = "Status: Ping succesvol afgeleverd bij PC B!";
+                        statusText.style.color = 'var(--protocol-green)';
+                    }
+                    
+                    stage++;
+                    setTimeout(moveNext, 850);
+                } else {
+                    setTimeout(() => {
+                        packet.style.display = 'none';
+                        statusText.innerText = "Status: Idle (Klaar voor volgende flow)";
+                        statusText.style.color = 'var(--text-muted)';
+                        animating = false;
+                    }, 2000);
+                }
+            }
+            
+            // Init startpositie
+            packet.style.transition = 'none';
+            packet.style.left = positions[0].left + 'px';
+            packet.style.top = positions[0].top + 'px';
+            statusText.innerText = "Status: ICMP Echo Request gegenereerd op PC A...";
+            
+            setTimeout(moveNext, 400);
+        });
+    </script>
+</body>
+</html>

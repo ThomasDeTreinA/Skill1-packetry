@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Packetry - Engineering the Flow</title>
-    <!-- Fonts: Urbanist & Lato -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,300;0,400;0,700;1,400&family=Urbanist:wght@300;400;600;700;900&display=swap" rel="stylesheet">
@@ -46,8 +45,11 @@
             padding: 20px;
         }
 
-        /* Header Style */
+        /* Header Style Gecorrigeerd naar Flexbox */
         header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             text-align: center;
             padding: 60px 20px 40px 20px;
             background: linear-gradient(180deg, rgba(0, 210, 255, 0.1) 0%, rgba(11, 15, 25, 0) 100%);
@@ -85,11 +87,12 @@
             transform: skewX(-15deg);
         }
 
+        /* Typefout hier opgelost (max-width: 600px) */
         header p {
             font-size: 1.2rem;
             color: var(--text-muted);
-            max-width: 60px0;
-            margin: 15px auto 0 auto;
+            max-width: 600px;
+            margin: 10px auto 0 auto;
             font-style: italic;
         }
 
@@ -373,7 +376,7 @@
             P<span class="logo-bars"><span class="logo-bar"></span><span class="logo-bar"></span><span class="logo-bar"></span></span>cketry
         </div>
         <p>"Engineering the Flow"</p>
-        <p style="font-size: 1.05rem; margin-top: 5px; color: var(--cyber-blue); font-style: normal;">De interactieve netwerk-simulator die droge IT-theorie transformeert in tastbare praktijk.</p>
+        <p style="font-size: 1.05rem; margin-top: 12px; color: var(--cyber-blue); font-style: normal; max-width: 600px;">De interactieve netwerk-simulator die droge IT-theorie transformeert in tastbare praktijk.</p>
         
         <div class="nav-buttons">
             <a href="#demo" class="btn btn-primary">🎮 Live Data Flow Testen</a>
@@ -391,7 +394,6 @@
             <span>Welkom op onze site! Bekijk deze pagina om alle antwoorden te vinden, documentatie in te zien, of de game direct thuis te downloaden.</span>
         </div>
 
-        <!-- LIVE DEMO CANVAS VISUALIZATION -->
         <section id="demo">
             <h2>🎮 Interactieve Data Flow Test</h2>
             <p>Klik op de knop hieronder om een gesimuleerd ICMP 'Ping'-pakketje door het Packetry netwerk te sturen en de flow visueel te controleren!</p>
@@ -399,20 +401,17 @@
             <div class="sim-preview">
                 <button class="btn btn-primary" id="btn-ping" style="margin-bottom: 10px;">Verstuur Ping (PC A ➔ PC B)</button>
                 <div class="network-canvas" id="canvas">
-                    <!-- Nodes placed precisely -->
                     <div class="node" style="left: 40px; top: 100px;" id="node-pca">PC A</div>
                     <div class="node" style="left: 420px; top: 40px;" id="node-switch">Switch</div>
                     <div class="node" style="left: 420px; top: 160px;" id="node-router">Router</div>
                     <div class="node" style="left: 800px; top: 100px;" id="node-pcb">PC B</div>
                     
-                    <!-- Cables rendering simulated by simple SVG lines or pure css lines -->
                     <div id="packet-element" class="packet" style="display: none;"></div>
                 </div>
                 <p id="sim-status" style="margin-top: 10px; font-family: monospace; color: var(--text-muted);">Status: Idle</p>
             </div>
         </section>
 
-        <!-- THUIS SPELEN & INSTALLATIE -->
         <section id="installatie">
             <h2>🔌 Thuis Spelen & Installatie</h2>
             <p>Wil je zelf ervaren hoe het is om stapsgewijs een netwerk op te bouwen? Je kunt Packetry heel eenvoudig lokaal op je eigen computer draaien via Python en Pygame.</p>
@@ -432,7 +431,6 @@
             <pre><code>python main.py</code></pre>
         </section>
 
-        <!-- LEVEL EN CYCLUS DOSSIER -->
         <section id="levels">
             <h2>📚 Level Overzicht</h2>
             <p>De simulator bevat 4 opeenvolgende levels die naadloos aansluiten op de officiële onderwijsdoelen van de 3e graad.</p>
@@ -449,7 +447,7 @@
                     <tr>
                         <td><strong>Level 1</strong></td>
                         <td>🔌 De Basis (LAN)</td>
-                        <td>Gebruik van PC's, Hubs en Switches. Werken met <strong>Straight-Through</strong> kabels en kabelafstanden (Cat 5 vs Cat 5e).</td>
+                        <td>Gebruik van PC's, Hubs und Switches. Werken met <strong>Straight-Through</strong> kabels en kabelafstanden (Cat 5 vs Cat 5e).</td>
                     </tr>
                     <tr>
                         <td><strong>Level 2</strong></td>
@@ -470,7 +468,6 @@
             </table>
         </section>
 
-        <!-- VEELGESTELDE VRAGEN -->
         <section id="faq">
             <h2>💬 Veelgestelde Vragen (FAQ)</h2>
             
@@ -490,7 +487,6 @@
             </div>
         </section>
 
-        <!-- CONTACT PAGINA EN LINKEDIN -->
         <section id="contact">
             <h2>📬 Blijf in Contact</h2>
             <p>Ben je een docent die Packetry in de klas wil inzetten, een IT-professional met sterke feedback, of wil je gewoon netwerken met het team? Connect met ons via LinkedIn of bekijk onze projecten!</p>
@@ -538,7 +534,6 @@
 
     </div>
 
-    <!-- Live simulator preview logica in Javascript -->
     <script>
         // FAQ Accordion Logica
         document.querySelectorAll('.faq-question').forEach(button => {

@@ -13,4 +13,4 @@ Wil je direct zien hoe datapakketjes stromen? Test onze live ICMP 'Ping'-flow si
 
 ------------------------------------------------------------------------------------------
 
-   pip install -r requirements.txt
+

@@ -222,6 +222,31 @@
             color: var(--text-light);
         }
 
+        /* QR Code Container Styling */
+        .qr-container {
+            text-align: center;
+            background-color: #080B12;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 25px;
+            margin-top: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .qr-container:hover {
+            border-color: var(--cyber-blue);
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.15);
+        }
+
+        .qr-image {
+            max-width: 180px;
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+            border: 4px solid #ffffff; /* Witte rand zorgt dat de QR-code altijd goed scanbaar is */
+            margin-bottom: 15px;
+        }
+
         /* FAQ Accordion */
         .faq-item {
             border-bottom: 1px solid var(--border-color);
@@ -401,6 +426,12 @@
             
             <p>4. <strong>Start de simulator:</strong> Lanceer de applicatie direct met het commando:</p>
             <pre><code>python main.py</code></pre>
+
+            <div class="qr-container">
+                <img src="qrcode.png" alt="QR Code naar GitHub Repository" class="qr-image">
+                <h3 style="color: #ffffff; font-size: 1.2rem; margin-bottom: 5px;">Scan & Bekijk op GitHub</h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem; max-width: 500px; margin: 0 auto;">Scan de QR-code met je smartphone om direct naar de broncode te navigeren, documentatie te lezen of mee te kijken met de commits!</p>
+            </div>
         </section>
 
         <section id="levels">
